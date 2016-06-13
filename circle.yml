@@ -1,0 +1,18 @@
+machine:
+  services:
+    - postgresql
+    - redis
+
+dependencies:
+  override:
+    - echo "CREATE DATABASE test_datacenters;" | psql -U postgres
+    - sudo mkdir -p /opt/ernest-libraries/authentication-middleware
+    - sudo chmod 777 /opt/ernest-libraries/authentication-middleware
+    - git clone git@github.com:ErnestIO/authentication-middleware.git /opt/ernest-libraries/authentication-middleware
+    - make install
+
+test:
+  override:
+    - make test
+    - make lint
+    - make cover
