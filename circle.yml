@@ -1,18 +1,16 @@
 machine:
   services:
-    - postgresql
-    - redis
+    - docker
+  environment:
+    NATS_URI:  nats://127.0.0.1:4222
 
 dependencies:
   override:
-    - echo "CREATE DATABASE test_datacenters;" | psql -U postgres
-    - sudo mkdir -p /opt/ernest-libraries/authentication-middleware
-    - sudo chmod 777 /opt/ernest-libraries/authentication-middleware
-    - git clone git@github.com:ErnestIO/authentication-middleware.git /opt/ernest-libraries/authentication-middleware
-    - make install
+    - echo "CREATE DATABASE datacenters;" | psql -U postgres
+    - docker run -d -p 4222:4222 nats
+    - make deps
 
 test:
   override:
     - make test
     - make lint
-    - make cover
