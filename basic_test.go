@@ -147,10 +147,10 @@ func TestGetHandler(t *testing.T) {
 		Convey("Given datacenters exist on the database", func() {
 			createEntities(20)
 			Convey("Then I should get a list of datacenters", func() {
-				msg, _ := n.Request("datacenter.find", []byte(`{}`), time.Second)
+				msg, _ := n.Request("datacenter.find", []byte(`{"group_id":2}`), time.Second)
 				list := []Entity{}
 				json.Unmarshal(msg.Data, &list)
-				So(len(list), ShouldEqual, 20)
+				So(len(list), ShouldEqual, 1)
 			})
 		})
 	})

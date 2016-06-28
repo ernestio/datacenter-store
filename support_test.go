@@ -9,14 +9,14 @@ import (
 )
 
 func setupTestSuite() {
-	db.Where("true = true").Unscoped().Delete(Entity{})
+	db.Unscoped().Delete(Entity{})
 }
 
 func createEntities(n int) {
 	i := 0
 	for i < n {
 		x := strconv.Itoa(i)
-		db.Create(&Entity{Name: "Test" + x})
+		db.Create(&Entity{Name: "Test" + x, GroupID: uint(i)})
 		i++
 	}
 }
