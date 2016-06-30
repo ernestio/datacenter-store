@@ -7,4 +7,4 @@ WORKDIR /go/src/github.com/ernestio/datacenter-store
 
 RUN make deps && go install
 
-ENTRYPOINT /go/bin/datacenter-store
+ENTRYPOINT ./entrypoint.sh
