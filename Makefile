@@ -1,16 +1,22 @@
-default: install
+install:
+	go install -v
 
-lint:
-	rubocop --fail-fast
+build:
+	go build -v ./...
 
-cover:
-	COVERAGE=true MIN_COVERAGE=50 bundle exec rspec -c -f d spec
+deps: dev-deps
+	go get -u github.com/jinzhu/gorm
+	go get -u github.com/nats-io/nats
+	go get -u github.com/lib/pq
+	go get -u github.com/r3labs/natsdb
+
+dev-deps:
+	go get -u github.com/golang/lint/golint
+	go get -u github.com/smartystreets/goconvey/convey
 
 test:
-	bundle exec rspec -f d spec
+	go test -v ./...
 
-install:
-	bundle install
-
-clean:
-	rm -rf coverage
+lint:
+	golint ./...
+	go vet ./...
