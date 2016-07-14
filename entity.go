@@ -17,13 +17,15 @@ type Entity struct {
 	ID              uint   `json:"id" gorm:"primary_key"`
 	GroupID         uint   `json:"group_id" gorm:"unique_index:idx_per_group"`
 	Name            string `json:"name" gorm:"unique_index:idx_per_group"`
-	Type            string `json:"type" gorm:"unique_index:idx_per_group"`
+	Type            string `json:"type"`
 	Region          string `json:"region"`
 	Username        string `json:"username"`
 	Password        string `json:"password"`
 	VCloudURL       string `json:"vcloud_url"`
 	VseURL          string `json:"vse_url"`
 	ExternalNetwork string `json:"external_network"`
+	Token           string `json:"token"`
+	Secret          string `json:"secret"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time `json:"-" sql:"index"`

@@ -49,6 +49,8 @@ func TestGetHandler(t *testing.T) {
 			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
 			So(output.VseURL, ShouldEqual, e.VseURL)
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
+			So(output.Token, ShouldEqual, e.Token)
+			So(output.Secret, ShouldEqual, e.Secret)
 			So(err, ShouldEqual, nil)
 		})
 
@@ -69,6 +71,8 @@ func TestGetHandler(t *testing.T) {
 			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
 			So(output.VseURL, ShouldEqual, e.VseURL)
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
+			So(output.Token, ShouldEqual, e.Token)
+			So(output.Secret, ShouldEqual, e.Secret)
 			So(err, ShouldEqual, nil)
 		})
 	})
