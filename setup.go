@@ -28,21 +28,38 @@ func setupNats() {
 
 func setupPg() {
 	var cfg map[string]interface{}
-	resp, err := n.Request("config.get.postgres", nil, time.Second)
+	var err error
+	var resp *nats.Msg
+
+	resp, err = n.Request("config.get.postgres", nil, time.Second)
 	if err != nil {
-		log.Println("could not load config")
-		log.Panic(err)
+		log.Println("could not load config.")
+		panic(err)
 	}
 
 	err = json.Unmarshal(resp.Data, &cfg)
 	if err != nil {
-		log.Panic(err)
-	}
-
-	pgURL := fmt.Sprintf("%s/%s?sslmode=disable", cfg["url"], "datacenters")
-	db, err = gorm.Open("postgres", pgURL)
-	if err != nil {
+		log.Println("could not read config.")
 		panic(err)
 	}
-	db.AutoMigrate(&Entity{})
+
+	for i := 0; i < 3; i++ {
+		pgURL := fmt.Sprintf("%s/%s?sslmode=disable", cfg["url"], "datacenters")
+		db, err = gorm.Open("postgres", pgURL)
+		if err != nil {
+			log.Println("could not connect to postgres. retrying")
+			time.Sleep(time.Second * 10)
+			continue
+		}
+
+		err = db.AutoMigrate(&Entity{}).Error
+		if err != nil {
+			log.Println("could not connect run migrations. retrying")
+			time.Sleep(time.Second * 10)
+			continue
+		}
+		return
+	}
+
+	panic(err)
 }
