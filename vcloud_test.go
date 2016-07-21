@@ -22,7 +22,7 @@ func TestVcloudDatacenter(t *testing.T) {
 	setupPg()
 	startHandler()
 
-	Convey("Scenario: getting a datacenter", t, func() {
+	Convey("Scenario: getting a vcloud datacenter", t, func() {
 		Convey("Given the datacenter exists on the database", func() {
 			createVcloudEntities(1)
 			e := Entity{}
@@ -53,9 +53,6 @@ func TestVcloudDatacenter(t *testing.T) {
 			msg, err := n.Request("datacenter.get", []byte(`{"name":"`+e.Name+`"}`), time.Second)
 			output := Entity{}
 			json.Unmarshal(msg.Data, &output)
-
-			fmt.Println("------------", e.Type, "------------", output.Type, "-------")
-			fmt.Println("------------", e.Name, "------------", output.Name, "-------")
 
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)

@@ -86,8 +86,13 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 	if ok := stored.HasID(); !ok {
 		return false
 	}
-	e.Name = stored.Name
 	e.ID = stored.ID
+	e.Name = stored.Name
+	e.Type = stored.Type
+	e.Token = stored.Token
+	e.Secret = stored.Secret
+	e.CreatedAt = stored.CreatedAt
+	e.UpdatedAt = stored.UpdatedAt
 
 	return true
 }
