@@ -17,7 +17,7 @@ type Entity struct {
 	ID              uint   `json:"id" gorm:"primary_key"`
 	GroupID         uint   `json:"group_id" gorm:"unique_index:idx_per_group"`
 	Name            string `json:"name" gorm:"unique_index:idx_per_group"`
-	Type            string `json:"type"`
+	Type            string `json:"type" gorm:"unique_index:idx_per_group"`
 	Region          string `json:"region"`
 	Username        string `json:"username"`
 	Password        string `json:"password"`
