@@ -6,7 +6,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/nats-io/nats"
@@ -61,9 +60,6 @@ func (e *Entity) Find() []interface{} {
 
 // MapInput : maps the input []byte on the current entity
 func (e *Entity) MapInput(body []byte) {
-	fmt.Println("////")
-	fmt.Println(string(body))
-	fmt.Println("/////")
 	json.Unmarshal(body, &e)
 }
 
@@ -100,7 +96,6 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 // or will call the handler to Fail the nats message
 func (e *Entity) LoadFromInputOrFail(msg *nats.Msg, h *natsdb.Handler) bool {
 	stored := &Entity{}
-	fmt.Println("++++++", string(msg.Data), "++++++++")
 	ok := stored.LoadFromInput(msg.Data)
 	if !ok {
 		h.Fail(msg)
