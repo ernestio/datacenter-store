@@ -5,6 +5,8 @@
 package main
 
 import (
+	"encoding/json"
+	"fmt"
 	"testing"
 	"time"
 
@@ -20,18 +22,54 @@ func TestVcloudDatacenter(t *testing.T) {
 	setupPg()
 	startHandler()
 
-	Convey("Scenario: creating a vcloud datacenter", t, func() {
-		setupTestSuite()
-		Convey("Given i create a datacenter with type vcloud", func() {
-			Convey("Then it should return the created record and it should be stored on DB", func() {
-				msg, err := n.Request("datacenter.set", []byte(`{"name":"vcloudDC", "type":"vcloud"}`), time.Second)
-				output := Entity{}
-				output.LoadFromInput(msg.Data)
-				So(output.ID, ShouldNotEqual, nil)
-				So(output.Name, ShouldEqual, "vcloudDC")
-				So(output.Type, ShouldEqual, "vcloud")
-				So(err, ShouldEqual, nil)
-			})
+	Convey("Scenario: getting a datacenter", t, func() {
+		Convey("Given the datacenter exists on the database", func() {
+			createVcloudEntities(1)
+			e := Entity{}
+			db.Last(&e)
+			id := fmt.Sprint(e.ID)
+
+			msg, err := n.Request("datacenter.get", []byte(`{"id":`+id+`}`), time.Second)
+			output := Entity{}
+			json.Unmarshal(msg.Data, &output)
+			So(output.ID, ShouldEqual, e.ID)
+			So(output.Name, ShouldEqual, e.Name)
+			So(output.Type, ShouldEqual, e.Type)
+			So(output.Region, ShouldEqual, e.Region)
+			So(output.Username, ShouldEqual, e.Username)
+			So(output.Password, ShouldEqual, e.Password)
+			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
+			So(output.VseURL, ShouldEqual, e.VseURL)
+			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
+			So(output.Token, ShouldEqual, e.Token)
+			So(output.Secret, ShouldEqual, e.Secret)
+			So(err, ShouldEqual, nil)
 		})
+
+		Convey("Given the datacenter exists on the database and searching by name", func() {
+			e := Entity{}
+			db.Last(&e)
+
+			msg, err := n.Request("datacenter.get", []byte(`{"name":"`+e.Name+`"}`), time.Second)
+			output := Entity{}
+			json.Unmarshal(msg.Data, &output)
+
+			fmt.Println("------------", e.Type, "------------", output.Type, "-------")
+			fmt.Println("------------", e.Name, "------------", output.Name, "-------")
+
+			So(output.ID, ShouldEqual, e.ID)
+			So(output.Name, ShouldEqual, e.Name)
+			So(output.Type, ShouldEqual, e.Type)
+			So(output.Region, ShouldEqual, e.Region)
+			So(output.Username, ShouldEqual, e.Username)
+			So(output.Password, ShouldEqual, e.Password)
+			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
+			So(output.VseURL, ShouldEqual, e.VseURL)
+			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
+			So(output.Token, ShouldEqual, e.Token)
+			So(output.Secret, ShouldEqual, e.Secret)
+			So(err, ShouldEqual, nil)
+		})
+
 	})
 }

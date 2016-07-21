@@ -20,3 +20,12 @@ func createEntities(n int) {
 		i++
 	}
 }
+
+func createVcloudEntities(n int) {
+	i := 0
+	for i < n {
+		x := strconv.Itoa(i)
+		db.Create(&Entity{Name: "TestVcloud" + x, Type: "vcloud", GroupID: uint(i)})
+		i++
+	}
+}
