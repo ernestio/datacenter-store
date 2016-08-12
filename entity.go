@@ -109,6 +109,7 @@ func (e *Entity) Update(body []byte) error {
 	stored := Entity{}
 	db.First(&stored, e.ID)
 	stored.Name = e.Name
+	stored.GroupID = e.GroupID
 
 	db.Save(&stored)
 	e = &stored
