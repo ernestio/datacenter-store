@@ -91,6 +91,9 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 	e.Type = stored.Type
 	e.Token = stored.Token
 	e.Secret = stored.Secret
+	e.Region = stored.Region
+	e.VCloudURL = stored.VCloudURL
+	e.VseURL = stored.VseURL
 	e.CreatedAt = stored.CreatedAt
 	e.UpdatedAt = stored.UpdatedAt
 
