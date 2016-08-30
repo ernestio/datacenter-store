@@ -24,6 +24,8 @@ type Entity struct {
 	VCloudURL       string `json:"vcloud_url"`
 	VseURL          string `json:"vse_url"`
 	ExternalNetwork string `json:"external_network"`
+	Token           string `json:"token"`
+	Secret          string `json:"secret"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time `json:"-" sql:"index"`
@@ -84,8 +86,16 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 	if ok := stored.HasID(); !ok {
 		return false
 	}
-	e.Name = stored.Name
 	e.ID = stored.ID
+	e.Name = stored.Name
+	e.Type = stored.Type
+	e.Token = stored.Token
+	e.Secret = stored.Secret
+	e.Region = stored.Region
+	e.VCloudURL = stored.VCloudURL
+	e.VseURL = stored.VseURL
+	e.CreatedAt = stored.CreatedAt
+	e.UpdatedAt = stored.UpdatedAt
 
 	return true
 }
