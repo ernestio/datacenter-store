@@ -5,15 +5,15 @@ build:
 	go build -v ./...
 
 deps: dev-deps
-	go get -u github.com/jinzhu/gorm
-	go get -u github.com/nats-io/nats
-	go get -u github.com/lib/pq
-	go get -u github.com/r3labs/natsdb
-	go get -u github.com/ernestio/ernest-config-client
+	go get github.com/jinzhu/gorm
+	go get github.com/nats-io/nats
+	go get github.com/lib/pq
+	go get github.com/r3labs/natsdb
+	go get github.com/ernestio/ernest-config-client
 
 dev-deps:
-	go get -u github.com/golang/lint/golint
-	go get -u github.com/smartystreets/goconvey/convey
+	go get github.com/golang/lint/golint
+	go get github.com/smartystreets/goconvey/convey
 
 test:
 	go test -v ./...
