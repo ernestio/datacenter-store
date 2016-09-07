@@ -4,8 +4,8 @@ It manages all ernest datacenter storage through a NATS api
 
 ## Build status
 
-* master:  [![CircleCI Master](https://circleci.com/gh/ErnestIO/datacenter-store/tree/master.svg?style=svg)](https://circleci.com/gh/ErnestIO/datacenter-store/tree/master)
-* develop: [![CircleCI Develop](https://circleci.com/gh/ErnestIO/datacenter-store/tree/develop.svg?style=svg)](https://circleci.com/gh/ErnestIO/datacenter-store/tree/develop)
+* master:  [![CircleCI Master](https://circleci.com/gh/ernestio/datacenter-store/tree/master.svg?style=svg)](https://circleci.com/gh/ernestio/datacenter-store/tree/master)
+* develop: [![CircleCI Develop](https://circleci.com/gh/ernestio/datacenter-store/tree/develop.svg?style=svg)](https://circleci.com/gh/ernestio/datacenter-store/tree/develop)
 
 ## Installation
 
