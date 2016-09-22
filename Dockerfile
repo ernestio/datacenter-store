@@ -1,4 +1,4 @@
-FROM golang:1.6.2-alpine
+FROM golang:1.7.1-alpine
 
 RUN apk add --update git && apk add --update make && rm -rf /var/cache/apk/*
 
