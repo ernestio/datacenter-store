@@ -158,5 +158,37 @@ func TestGetHandler(t *testing.T) {
 			})
 		})
 	})
+}
+
+func TestUpdateHandler(t *testing.T) {
+	setupNats()
+	n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
+		n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
+	})
+	setupPg()
+	startHandler()
+	Convey("Scenario: update datacenters", t, func() {
+		setupTestSuite()
+		Convey("Given datacenters exist on the database", func() {
+			createEntities(20)
+			Convey("Then I should get a list of datacenters", func() {
+				msg, _ := n.Request("datacenter.find", []byte(`{"group_id":2}`), time.Second)
+				list := []Entity{}
+				json.Unmarshal(msg.Data, &list)
+				So(len(list), ShouldEqual, 1)
+				entity := list[0]
+				entity.Name = "supu"
+				entity.GroupID = 4
+				body, _ := json.Marshal(entity)
+				msg, _ = n.Request("datacenter.set", body, time.Second)
+
+				msg, _ = n.Request("datacenter.find", []byte(`{"name":"`+entity.Name+`"}`), time.Second)
+				json.Unmarshal(msg.Data, &list)
+				So(len(list), ShouldEqual, 1)
+				So(list[0].Name, ShouldEqual, entity.Name)
+				So(list[0].GroupID, ShouldEqual, entity.GroupID)
+			})
+		})
+	})
 
 }
