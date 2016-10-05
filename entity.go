@@ -47,6 +47,8 @@ func (e *Entity) Find() []interface{} {
 			db.Where("name = ?", e.Name).Find(&entities)
 		} else if e.GroupID != 0 {
 			db.Where("group_id = ?", e.GroupID).Find(&entities)
+		} else {
+			db.Find(&entities)
 		}
 	}
 
