@@ -89,6 +89,7 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 		return false
 	}
 	e.ID = stored.ID
+	e.GroupID = stored.GroupID
 	e.Name = stored.Name
 	e.Type = stored.Type
 	e.Token = stored.Token
