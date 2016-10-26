@@ -124,6 +124,19 @@ func (e *Entity) Update(body []byte) error {
 	stored.Name = e.Name
 	stored.GroupID = e.GroupID
 
+	if e.Username != "" {
+		stored.Username = e.Username
+	}
+	if e.Password != "" {
+		stored.Password = e.Password
+	}
+	if e.Token != "" {
+		stored.Token = e.Token
+	}
+	if e.Secret != "" {
+		stored.Secret = e.Secret
+	}
+
 	db.Save(&stored)
 	e = &stored
 
