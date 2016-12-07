@@ -7,9 +7,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"testing"
 	"time"
 
+	aes "github.com/ernestio/crypto/aes"
 	"github.com/nats-io/nats"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -105,7 +107,7 @@ func TestGetHandler(t *testing.T) {
 		setupTestSuite()
 		Convey("Given we don't provide any id as part of the body", func() {
 			Convey("Then it should return the created record and it should be stored on DB", func() {
-				msg, err := n.Request("datacenter.set", []byte(`{"name":"fred"}`), time.Second)
+				msg, err := n.Request("datacenter.set", []byte(`{"name":"fred","token":"foo","secret":"bar"}`), time.Second)
 				output := Entity{}
 				output.LoadFromInput(msg.Data)
 				So(output.ID, ShouldNotEqual, nil)
@@ -179,6 +181,8 @@ func TestUpdateHandler(t *testing.T) {
 				entity := list[0]
 				entity.Name = "supu"
 				entity.GroupID = 4
+				entity.Token = "blah"
+				entity.Secret = "blah"
 				body, _ := json.Marshal(entity)
 				msg, _ = n.Request("datacenter.set", body, time.Second)
 
@@ -187,6 +191,16 @@ func TestUpdateHandler(t *testing.T) {
 				So(len(list), ShouldEqual, 1)
 				So(list[0].Name, ShouldEqual, entity.Name)
 				So(list[0].GroupID, ShouldEqual, entity.GroupID)
+				So(list[0].Token, ShouldNotEqual, entity.Token)
+				So(list[0].Secret, ShouldNotEqual, entity.Secret)
+
+				crypto := aes.New()
+				key := []byte(os.Getenv("ERNEST_CRYPTO_KEY"))
+				token, _ := crypto.Decrypt([]byte(list[0].Token), key)
+				So(string(token), ShouldEqual, entity.Token)
+				secret, _ := crypto.Decrypt([]byte(list[0].Secret), key)
+				So(string(secret), ShouldEqual, entity.Secret)
+
 			})
 		})
 	})

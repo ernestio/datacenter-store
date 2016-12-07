@@ -6,8 +6,10 @@ package main
 
 import (
 	"encoding/json"
+	"os"
 	"time"
 
+	aes "github.com/ernestio/crypto/aes"
 	"github.com/nats-io/nats"
 	"github.com/r3labs/natsdb"
 )
@@ -88,6 +90,7 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 	if ok := stored.HasID(); !ok {
 		return false
 	}
+
 	e.ID = stored.ID
 	e.GroupID = stored.GroupID
 	e.Name = stored.Name
@@ -137,7 +140,7 @@ func (e *Entity) Update(body []byte) error {
 		stored.Secret = e.Secret
 	}
 
-	db.Save(&stored)
+	stored.Save()
 	e = &stored
 
 	return nil
@@ -150,8 +153,22 @@ func (e *Entity) Delete() error {
 	return nil
 }
 
+func crypt(s string) string {
+	crypto := aes.New()
+	key := []byte(os.Getenv("ERNEST_CRYPTO_KEY"))
+	if s != "" {
+		secret, _ := crypto.Encrypt([]byte(s), key)
+		s = string(secret)
+	}
+
+	return s
+}
+
 // Save : Persists current entity on database
 func (e *Entity) Save() error {
+	e.Token = crypt(e.Token)
+	e.Secret = crypt(e.Secret)
+
 	db.Save(&e)
 
 	return nil

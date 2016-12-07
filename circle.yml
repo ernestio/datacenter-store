@@ -3,12 +3,13 @@ machine:
     - docker
   environment:
     NATS_URI:  nats://127.0.0.1:4222
+    ERNEST_CRYPTO_KEY: aaaaaaaaaaaaaaaaaaaakkkkkkkkkkoo
 
 dependencies:
   override:
     - echo "CREATE DATABASE datacenters;" | psql -U postgres
     - docker run -d -p 4222:4222 nats
-    - make deps
+    - make dev-deps
 
 test:
   override:
