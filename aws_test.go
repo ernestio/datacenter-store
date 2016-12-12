@@ -16,8 +16,8 @@ import (
 
 func TestAWSDatacenter(t *testing.T) {
 	setupNats()
-	n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
-		n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
+	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
+		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})
 	setupPg()
 	startHandler()
@@ -31,7 +31,8 @@ func TestAWSDatacenter(t *testing.T) {
 
 			msg, err := n.Request("datacenter.get", []byte(`{"id":`+id+`}`), time.Second)
 			output := Entity{}
-			json.Unmarshal(msg.Data, &output)
+			err = json.Unmarshal(msg.Data, &output)
+			So(err, ShouldBeNil)
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)
 			So(output.Type, ShouldEqual, e.Type)
@@ -52,7 +53,8 @@ func TestAWSDatacenter(t *testing.T) {
 
 			msg, err := n.Request("datacenter.get", []byte(`{"name":"`+e.Name+`"}`), time.Second)
 			output := Entity{}
-			json.Unmarshal(msg.Data, &output)
+			err = json.Unmarshal(msg.Data, &output)
+			So(err, ShouldBeNil)
 
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)

@@ -5,6 +5,7 @@
 package main
 
 import (
+	"log"
 	"runtime"
 
 	"github.com/jinzhu/gorm"
@@ -30,10 +31,18 @@ func startHandler() {
 		},
 	}
 
-	n.Subscribe("datacenter.get", handler.Get)
-	n.Subscribe("datacenter.del", handler.Del)
-	n.Subscribe("datacenter.set", handler.Set)
-	n.Subscribe("datacenter.find", handler.Find)
+	if _, err = n.Subscribe("datacenter.get", handler.Get); err != nil {
+		log.Println("Error subscribing datacenter.get")
+	}
+	if _, err = n.Subscribe("datacenter.del", handler.Del); err != nil {
+		log.Println("Error subscribing datacenter.del")
+	}
+	if _, err = n.Subscribe("datacenter.set", handler.Set); err != nil {
+		log.Println("Error subscribing datacenter.set")
+	}
+	if _, err = n.Subscribe("datacenter.find", handler.Find); err != nil {
+		log.Println("Error subscribing datacenter.find")
+	}
 }
 
 func main() {
