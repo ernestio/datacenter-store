@@ -6,6 +6,7 @@ package main
 
 import (
 	"encoding/json"
+	"log"
 	"os"
 	"time"
 
@@ -64,7 +65,9 @@ func (e *Entity) Find() []interface{} {
 
 // MapInput : maps the input []byte on the current entity
 func (e *Entity) MapInput(body []byte) {
-	json.Unmarshal(body, &e)
+	if err := json.Unmarshal(body, &e); err != nil {
+		log.Println("Invalid input " + err.Error())
+	}
 }
 
 // HasID : determines if the current entity has an id or not
@@ -140,7 +143,9 @@ func (e *Entity) Update(body []byte) error {
 		stored.Secret = e.Secret
 	}
 
-	stored.Save()
+	if err := stored.Save(); err != nil {
+		log.Println("Error saving " + err.Error())
+	}
 	e = &stored
 
 	return nil

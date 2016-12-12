@@ -3,7 +3,7 @@ machine:
     - docker
   environment:
     NATS_URI:  nats://127.0.0.1:4222
-    ERNEST_CRYPTO_KEY: aaaaaaaaaaaaaaaaaaaakkkkkkkkkkoo
+    ERNEST_CRYPTO_KEY: mMYlPIvI11z20H1BnBmB223355667788
 
 dependencies:
   override:

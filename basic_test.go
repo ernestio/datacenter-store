@@ -19,8 +19,8 @@ import (
 
 func TestGetHandler(t *testing.T) {
 	setupNats()
-	n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
-		n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
+	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
+		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})
 	setupPg()
 	startHandler()
@@ -41,7 +41,8 @@ func TestGetHandler(t *testing.T) {
 
 			msg, err := n.Request("datacenter.get", []byte(`{"id":`+id+`}`), time.Second)
 			output := Entity{}
-			json.Unmarshal(msg.Data, &output)
+			err = json.Unmarshal(msg.Data, &output)
+			So(err, ShouldBeNil)
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)
 			So(output.Type, ShouldEqual, e.Type)
@@ -63,7 +64,8 @@ func TestGetHandler(t *testing.T) {
 
 			msg, err := n.Request("datacenter.get", []byte(`{"name":"`+e.Name+`"}`), time.Second)
 			output := Entity{}
-			json.Unmarshal(msg.Data, &output)
+			err = json.Unmarshal(msg.Data, &output)
+			So(err, ShouldBeNil)
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)
 			So(output.Type, ShouldEqual, e.Type)
@@ -155,7 +157,8 @@ func TestGetHandler(t *testing.T) {
 			Convey("Then I should get a list of datacenters", func() {
 				msg, _ := n.Request("datacenter.find", []byte(`{"group_id":2}`), time.Second)
 				list := []Entity{}
-				json.Unmarshal(msg.Data, &list)
+				err = json.Unmarshal(msg.Data, &list)
+				So(err, ShouldBeNil)
 				So(len(list), ShouldEqual, 1)
 			})
 		})
@@ -164,8 +167,8 @@ func TestGetHandler(t *testing.T) {
 
 func TestUpdateHandler(t *testing.T) {
 	setupNats()
-	n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
-		n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
+	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
+		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})
 	setupPg()
 	startHandler()
@@ -176,7 +179,8 @@ func TestUpdateHandler(t *testing.T) {
 			Convey("Then I should get a list of datacenters", func() {
 				msg, _ := n.Request("datacenter.find", []byte(`{"group_id":2}`), time.Second)
 				list := []Entity{}
-				json.Unmarshal(msg.Data, &list)
+				err = json.Unmarshal(msg.Data, &list)
+				So(err, ShouldBeNil)
 				So(len(list), ShouldEqual, 1)
 				entity := list[0]
 				entity.Name = "supu"
@@ -187,7 +191,8 @@ func TestUpdateHandler(t *testing.T) {
 				msg, _ = n.Request("datacenter.set", body, time.Second)
 
 				msg, _ = n.Request("datacenter.find", []byte(`{"name":"`+entity.Name+`"}`), time.Second)
-				json.Unmarshal(msg.Data, &list)
+				err = json.Unmarshal(msg.Data, &list)
+				So(err, ShouldBeNil)
 				So(len(list), ShouldEqual, 1)
 				So(list[0].Name, ShouldEqual, entity.Name)
 				So(list[0].GroupID, ShouldEqual, entity.GroupID)
