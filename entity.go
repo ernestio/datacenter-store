@@ -158,21 +158,33 @@ func (e *Entity) Delete() error {
 	return nil
 }
 
-func crypt(s string) string {
+func crypt(s string) (string, error) {
 	crypto := aes.New()
 	key := []byte(os.Getenv("ERNEST_CRYPTO_KEY"))
 	if s != "" {
-		secret, _ := crypto.Encrypt([]byte(s), key)
+		secret, err := crypto.Encrypt([]byte(s), key)
+		if err != nil {
+			return "", err
+		}
 		s = string(secret)
 	}
 
-	return s
+	return s, nil
 }
 
 // Save : Persists current entity on database
 func (e *Entity) Save() error {
-	e.Token = crypt(e.Token)
-	e.Secret = crypt(e.Secret)
+	var err error
+
+	e.Token, err = crypt(e.Token)
+	if err != nil {
+		return err
+	}
+
+	e.Secret, err = crypt(e.Secret)
+	if err != nil {
+		return err
+	}
 
 	db.Save(&e)
 
