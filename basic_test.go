@@ -208,6 +208,25 @@ func TestUpdateHandler(t *testing.T) {
 				So(err, ShouldBeNil)
 				So(secret, ShouldEqual, entity.Secret)
 
+				encryptedToken := token
+				encryptedSecret := secret
+				entity = list[0]
+				entity.Name = "supu"
+				entity.GroupID = 3
+				entity.Token = ""
+				entity.Secret = ""
+				body, _ = json.Marshal(entity)
+				msg, _ = n.Request("datacenter.set", body, time.Second)
+				msg, _ = n.Request("datacenter.find", []byte(`{"name":"`+entity.Name+`"}`), time.Second)
+				err = json.Unmarshal(msg.Data, &list)
+				So(err, ShouldBeNil)
+
+				token, err = crypto.Decrypt(list[0].Token, key)
+				So(err, ShouldBeNil)
+				So(encryptedToken, ShouldEqual, encryptedToken)
+				secret, err = crypto.Decrypt(list[0].Secret, key)
+				So(err, ShouldBeNil)
+				So(encryptedSecret, ShouldEqual, encryptedSecret)
 			})
 		})
 	})
