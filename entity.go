@@ -160,13 +160,13 @@ func (e *Entity) Delete() error {
 
 func crypt(s string) (string, error) {
 	crypto := aes.New()
-	key := []byte(os.Getenv("ERNEST_CRYPTO_KEY"))
+	key := os.Getenv("ERNEST_CRYPTO_KEY")
 	if s != "" {
-		secret, err := crypto.Encrypt([]byte(s), key)
+		encrypted, err := crypto.Encrypt(s, key)
 		if err != nil {
 			return "", err
 		}
-		s = string(secret)
+		s = encrypted
 	}
 
 	return s, nil
