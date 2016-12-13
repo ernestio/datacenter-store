@@ -131,10 +131,10 @@ func (e *Entity) Update(body []byte) error {
 	stored.GroupID = e.GroupID
 
 	if e.Username != "" {
-		stored.Username = e.Username
+		stored.Username, _ = crypt(e.Username)
 	}
 	if e.Password != "" {
-		stored.Password = e.Password
+		stored.Password, _ = crypt(e.Password)
 	}
 	if e.Token != "" {
 		stored.Token, _ = crypt(e.Token)
@@ -173,6 +173,16 @@ func crypt(s string) (string, error) {
 // Save : Persists current entity on database
 func (e *Entity) Save() error {
 	var err error
+
+	e.Username, err = crypt(e.Username)
+	if err != nil {
+		return err
+	}
+
+	e.Password, err = crypt(e.Password)
+	if err != nil {
+		return err
+	}
 
 	e.Token, err = crypt(e.Token)
 	if err != nil {
