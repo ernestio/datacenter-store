@@ -11,6 +11,7 @@ deps:
 	go get github.com/r3labs/natsdb
 	go get github.com/ernestio/ernest-config-client
 	go get github.com/ernestio/crypto
+	go get golang.org/x/crypto/pbkdf2
 
 dev-deps: deps
 	go get github.com/golang/lint/golint

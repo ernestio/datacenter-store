@@ -200,11 +200,13 @@ func TestUpdateHandler(t *testing.T) {
 				So(list[0].Secret, ShouldNotEqual, entity.Secret)
 
 				crypto := aes.New()
-				key := []byte(os.Getenv("ERNEST_CRYPTO_KEY"))
-				token, _ := crypto.Decrypt([]byte(list[0].Token), key)
-				So(string(token), ShouldEqual, entity.Token)
-				secret, _ := crypto.Decrypt([]byte(list[0].Secret), key)
-				So(string(secret), ShouldEqual, entity.Secret)
+				key := os.Getenv("ERNEST_CRYPTO_KEY")
+				token, err := crypto.Decrypt(list[0].Token, key)
+				So(err, ShouldBeNil)
+				So(token, ShouldEqual, entity.Token)
+				secret, err := crypto.Decrypt(list[0].Secret, key)
+				So(err, ShouldBeNil)
+				So(secret, ShouldEqual, entity.Secret)
 
 			})
 		})
