@@ -137,15 +137,13 @@ func (e *Entity) Update(body []byte) error {
 		stored.Password = e.Password
 	}
 	if e.Token != "" {
-		stored.Token = e.Token
+		stored.Token, _ = crypt(e.Token)
 	}
 	if e.Secret != "" {
-		stored.Secret = e.Secret
+		stored.Secret, _ = crypt(e.Secret)
 	}
 
-	if err := stored.Save(); err != nil {
-		log.Println("Error saving " + err.Error())
-	}
+	db.Save(&stored)
 	e = &stored
 
 	return nil
