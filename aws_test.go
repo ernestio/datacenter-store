@@ -42,8 +42,8 @@ func TestAWSDatacenter(t *testing.T) {
 			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
 			So(output.VseURL, ShouldEqual, e.VseURL)
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.Token, ShouldEqual, e.Token)
-			So(output.Secret, ShouldEqual, e.Secret)
+			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
+			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
 			So(err, ShouldEqual, nil)
 		})
 
@@ -65,8 +65,8 @@ func TestAWSDatacenter(t *testing.T) {
 			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
 			So(output.VseURL, ShouldEqual, e.VseURL)
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.Token, ShouldEqual, e.Token)
-			So(output.Secret, ShouldEqual, e.Secret)
+			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
+			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
 			So(err, ShouldEqual, nil)
 		})
 
