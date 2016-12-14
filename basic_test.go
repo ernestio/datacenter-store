@@ -52,8 +52,8 @@ func TestGetHandler(t *testing.T) {
 			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
 			So(output.VseURL, ShouldEqual, e.VseURL)
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.Token, ShouldEqual, e.Token)
-			So(output.Secret, ShouldEqual, e.Secret)
+			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
+			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
 			So(err, ShouldEqual, nil)
 		})
 
@@ -75,8 +75,8 @@ func TestGetHandler(t *testing.T) {
 			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
 			So(output.VseURL, ShouldEqual, e.VseURL)
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.Token, ShouldEqual, e.Token)
-			So(output.Secret, ShouldEqual, e.Secret)
+			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
+			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
 			So(err, ShouldEqual, nil)
 		})
 	})
@@ -109,7 +109,7 @@ func TestGetHandler(t *testing.T) {
 		setupTestSuite()
 		Convey("Given we don't provide any id as part of the body", func() {
 			Convey("Then it should return the created record and it should be stored on DB", func() {
-				msg, err := n.Request("datacenter.set", []byte(`{"name":"fred","token":"foo","secret":"bar"}`), time.Second)
+				msg, err := n.Request("datacenter.set", []byte(`{"name":"fred","aws_access_token_id":"foo","aws_secret_access_key":"bar"}`), time.Second)
 				output := Entity{}
 				output.LoadFromInput(msg.Data)
 				So(output.ID, ShouldNotEqual, nil)
@@ -131,6 +131,7 @@ func TestGetHandler(t *testing.T) {
 		})
 
 		Convey("Given we provide an existing id", func() {
+			setupTestSuite()
 			createEntities(1)
 			e := Entity{}
 			db.First(&e)
@@ -185,8 +186,8 @@ func TestUpdateHandler(t *testing.T) {
 				entity := list[0]
 				entity.Name = "supu"
 				entity.GroupID = 4
-				entity.Token = "blah"
-				entity.Secret = "blah"
+				entity.AccessKeyID = "blah"
+				entity.SecretAccessKey = "blah"
 				body, _ := json.Marshal(entity)
 				msg, _ = n.Request("datacenter.set", body, time.Second)
 
@@ -196,37 +197,37 @@ func TestUpdateHandler(t *testing.T) {
 				So(len(list), ShouldEqual, 1)
 				So(list[0].Name, ShouldEqual, entity.Name)
 				So(list[0].GroupID, ShouldEqual, entity.GroupID)
-				So(list[0].Token, ShouldNotEqual, entity.Token)
-				So(list[0].Secret, ShouldNotEqual, entity.Secret)
+				So(list[0].AccessKeyID, ShouldNotEqual, entity.AccessKeyID)
+				So(list[0].SecretAccessKey, ShouldNotEqual, entity.SecretAccessKey)
 
 				crypto := aes.New()
 				key := os.Getenv("ERNEST_CRYPTO_KEY")
-				token, err := crypto.Decrypt(list[0].Token, key)
+				token, err := crypto.Decrypt(list[0].AccessKeyID, key)
 				So(err, ShouldBeNil)
-				So(token, ShouldEqual, entity.Token)
-				secret, err := crypto.Decrypt(list[0].Secret, key)
+				So(token, ShouldEqual, entity.AccessKeyID)
+				secret, err := crypto.Decrypt(list[0].SecretAccessKey, key)
 				So(err, ShouldBeNil)
-				So(secret, ShouldEqual, entity.Secret)
+				So(secret, ShouldEqual, entity.SecretAccessKey)
 
-				encryptedToken := token
-				encryptedSecret := secret
+				encryptedAccessKeyID := token
+				encryptedSecretAccessKey := secret
 				entity = list[0]
 				entity.Name = "supu"
 				entity.GroupID = 3
-				entity.Token = ""
-				entity.Secret = ""
+				entity.AccessKeyID = ""
+				entity.SecretAccessKey = ""
 				body, _ = json.Marshal(entity)
 				msg, _ = n.Request("datacenter.set", body, time.Second)
 				msg, _ = n.Request("datacenter.find", []byte(`{"name":"`+entity.Name+`"}`), time.Second)
 				err = json.Unmarshal(msg.Data, &list)
 				So(err, ShouldBeNil)
 
-				token, err = crypto.Decrypt(list[0].Token, key)
+				token, err = crypto.Decrypt(list[0].AccessKeyID, key)
 				So(err, ShouldBeNil)
-				So(encryptedToken, ShouldEqual, encryptedToken)
-				secret, err = crypto.Decrypt(list[0].Secret, key)
+				So(encryptedAccessKeyID, ShouldEqual, encryptedAccessKeyID)
+				secret, err = crypto.Decrypt(list[0].SecretAccessKey, key)
 				So(err, ShouldBeNil)
-				So(encryptedSecret, ShouldEqual, encryptedSecret)
+				So(encryptedSecretAccessKey, ShouldEqual, encryptedSecretAccessKey)
 			})
 		})
 	})

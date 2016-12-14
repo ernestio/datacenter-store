@@ -27,8 +27,8 @@ type Entity struct {
 	VCloudURL       string `json:"vcloud_url"`
 	VseURL          string `json:"vse_url"`
 	ExternalNetwork string `json:"external_network"`
-	Token           string `json:"token"`
-	Secret          string `json:"secret"`
+	AccessKeyID     string `json:"aws_access_key_id"`
+	SecretAccessKey string `json:"aws_secret_access_key"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time `json:"-" sql:"index"`
@@ -98,8 +98,8 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 	e.GroupID = stored.GroupID
 	e.Name = stored.Name
 	e.Type = stored.Type
-	e.Token = stored.Token
-	e.Secret = stored.Secret
+	e.AccessKeyID = stored.AccessKeyID
+	e.SecretAccessKey = stored.SecretAccessKey
 	e.Region = stored.Region
 	e.VCloudURL = stored.VCloudURL
 	e.VseURL = stored.VseURL
@@ -136,11 +136,11 @@ func (e *Entity) Update(body []byte) error {
 	if e.Password != "" {
 		stored.Password, _ = crypt(e.Password)
 	}
-	if e.Token != "" {
-		stored.Token, _ = crypt(e.Token)
+	if e.AccessKeyID != "" {
+		stored.AccessKeyID, _ = crypt(e.AccessKeyID)
 	}
-	if e.Secret != "" {
-		stored.Secret, _ = crypt(e.Secret)
+	if e.SecretAccessKey != "" {
+		stored.SecretAccessKey, _ = crypt(e.SecretAccessKey)
 	}
 
 	db.Save(&stored)
@@ -184,12 +184,12 @@ func (e *Entity) Save() error {
 		return err
 	}
 
-	e.Token, err = crypt(e.Token)
+	e.AccessKeyID, err = crypt(e.AccessKeyID)
 	if err != nil {
 		return err
 	}
 
-	e.Secret, err = crypt(e.Secret)
+	e.SecretAccessKey, err = crypt(e.SecretAccessKey)
 	if err != nil {
 		return err
 	}
