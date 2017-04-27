@@ -29,6 +29,11 @@ type Entity struct {
 	ExternalNetwork string `json:"external_network"`
 	AccessKeyID     string `json:"aws_access_key_id"`
 	SecretAccessKey string `json:"aws_secret_access_key"`
+	SubscriptionID  string `json:"azure_subscription_id"`
+	ClientID        string `json:"azure_client_id"`
+	ClientSecret    string `json:"azure_client_secret"`
+	TenantID        string `json:"azure_tenant_id"`
+	Environment     string `json:"azure_environment"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time `json:"-" sql:"index"`
@@ -103,6 +108,11 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 	e.Region = stored.Region
 	e.VCloudURL = stored.VCloudURL
 	e.VseURL = stored.VseURL
+	e.SubscriptionID = stored.SubscriptionID
+	e.ClientID = stored.ClientID
+	e.ClientSecret = stored.ClientSecret
+	e.TenantID = stored.TenantID
+	e.Environment = stored.Environment
 	e.CreatedAt = stored.CreatedAt
 	e.UpdatedAt = stored.UpdatedAt
 
@@ -141,6 +151,21 @@ func (e *Entity) Update(body []byte) error {
 	}
 	if e.SecretAccessKey != "" {
 		stored.SecretAccessKey, _ = crypt(e.SecretAccessKey)
+	}
+	if e.SubscriptionID != "" {
+		stored.SubscriptionID, _ = crypt(e.SubscriptionID)
+	}
+	if e.ClientID != "" {
+		stored.ClientID, _ = crypt(e.ClientID)
+	}
+	if e.ClientSecret != "" {
+		stored.ClientSecret, _ = crypt(e.ClientSecret)
+	}
+	if e.TenantID != "" {
+		stored.TenantID, _ = crypt(e.TenantID)
+	}
+	if e.Environment != "" {
+		stored.Environment, _ = crypt(e.Environment)
 	}
 
 	db.Save(&stored)
@@ -190,6 +215,31 @@ func (e *Entity) Save() error {
 	}
 
 	e.SecretAccessKey, err = crypt(e.SecretAccessKey)
+	if err != nil {
+		return err
+	}
+
+	e.SubscriptionID, err = crypt(e.SubscriptionID)
+	if err != nil {
+		return err
+	}
+
+	e.ClientID, err = crypt(e.ClientID)
+	if err != nil {
+		return err
+	}
+
+	e.ClientSecret, err = crypt(e.ClientSecret)
+	if err != nil {
+		return err
+	}
+
+	e.TenantID, err = crypt(e.TenantID)
+	if err != nil {
+		return err
+	}
+
+	e.Environment, err = crypt(e.Environment)
 	if err != nil {
 		return err
 	}
