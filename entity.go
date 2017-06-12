@@ -103,6 +103,9 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 	e.GroupID = stored.GroupID
 	e.Name = stored.Name
 	e.Type = stored.Type
+	e.Username = stored.Username
+	e.Password = stored.Password
+	e.ExternalNetwork = stored.ExternalNetwork
 	e.AccessKeyID = stored.AccessKeyID
 	e.SecretAccessKey = stored.SecretAccessKey
 	e.Region = stored.Region
