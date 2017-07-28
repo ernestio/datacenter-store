@@ -164,6 +164,23 @@ func TestGetHandler(t *testing.T) {
 			})
 		})
 	})
+
+	Convey("Scenario: find datacenters by multiple ids", t, func() {
+		setupTestSuite()
+		Convey("Given datacenters exist on the database", func() {
+			createEntities(20)
+			Convey("Then I should get a list of datacenters", func() {
+				msg, _ := n.Request("datacenter.find", []byte(`{}`), time.Second)
+				list := []Entity{}
+				err = json.Unmarshal(msg.Data, &list)
+				So(err, ShouldBeNil)
+				msg, _ = n.Request("datacenter.find", []byte(`{"ids":["`+fmt.Sprint(list[0].ID)+`","`+fmt.Sprint(list[1].ID)+`","`+fmt.Sprint(list[2].ID)+`"]}`), time.Second)
+				err = json.Unmarshal(msg.Data, &list)
+				So(err, ShouldBeNil)
+				So(len(list), ShouldEqual, 3)
+			})
+		})
+	})
 }
 
 func TestUpdateHandler(t *testing.T) {

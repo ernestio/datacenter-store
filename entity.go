@@ -17,23 +17,24 @@ import (
 
 // Entity : the database mapped entity
 type Entity struct {
-	ID              uint   `json:"id" gorm:"primary_key"`
-	GroupID         uint   `json:"group_id" gorm:"unique_index:idx_per_group"`
-	Name            string `json:"name" gorm:"unique_index:idx_per_group"`
-	Type            string `json:"type" gorm:"unique_index:idx_per_group"`
-	Region          string `json:"region"`
-	Username        string `json:"username"`
-	Password        string `json:"password"`
-	VCloudURL       string `json:"vcloud_url"`
-	VseURL          string `json:"vse_url"`
-	ExternalNetwork string `json:"external_network"`
-	AccessKeyID     string `json:"aws_access_key_id"`
-	SecretAccessKey string `json:"aws_secret_access_key"`
-	SubscriptionID  string `json:"azure_subscription_id"`
-	ClientID        string `json:"azure_client_id"`
-	ClientSecret    string `json:"azure_client_secret"`
-	TenantID        string `json:"azure_tenant_id"`
-	Environment     string `json:"azure_environment"`
+	ID              uint     `json:"id" gorm:"primary_key"`
+	IDs             []string `json:"ids" gorm:"-"`
+	GroupID         uint     `json:"group_id" gorm:"unique_index:idx_per_group"`
+	Name            string   `json:"name" gorm:"unique_index:idx_per_group"`
+	Type            string   `json:"type" gorm:"unique_index:idx_per_group"`
+	Region          string   `json:"region"`
+	Username        string   `json:"username"`
+	Password        string   `json:"password"`
+	VCloudURL       string   `json:"vcloud_url"`
+	VseURL          string   `json:"vse_url"`
+	ExternalNetwork string   `json:"external_network"`
+	AccessKeyID     string   `json:"aws_access_key_id"`
+	SecretAccessKey string   `json:"aws_secret_access_key"`
+	SubscriptionID  string   `json:"azure_subscription_id"`
+	ClientID        string   `json:"azure_client_id"`
+	ClientSecret    string   `json:"azure_client_secret"`
+	TenantID        string   `json:"azure_tenant_id"`
+	Environment     string   `json:"azure_environment"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
 	DeletedAt       *time.Time `json:"-" sql:"index"`
@@ -48,7 +49,9 @@ func (Entity) TableName() string {
 // will perform a search on the database
 func (e *Entity) Find() []interface{} {
 	entities := []Entity{}
-	if e.Name != "" && e.GroupID != 0 {
+	if len(e.IDs) > 0 {
+		db.Where("id in (?)", e.IDs).Find(&entities)
+	} else if e.Name != "" && e.GroupID != 0 {
 		db.Where("name = ?", e.Name).Where("group_id = ?", e.GroupID).Find(&entities)
 	} else {
 		if e.Name != "" {
