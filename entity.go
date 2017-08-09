@@ -21,6 +21,7 @@ type Entity struct {
 	IDs             []string `json:"ids" gorm:"-"`
 	GroupID         uint     `json:"group_id" gorm:"unique_index:idx_per_group"`
 	Name            string   `json:"name" gorm:"unique_index:idx_per_group"`
+	Names           []string `json:"names" gorm:"-"`
 	Type            string   `json:"type" gorm:"unique_index:idx_per_group"`
 	Region          string   `json:"region"`
 	Username        string   `json:"username"`
@@ -51,6 +52,8 @@ func (e *Entity) Find() []interface{} {
 	entities := []Entity{}
 	if len(e.IDs) > 0 {
 		db.Where("id in (?)", e.IDs).Find(&entities)
+	} else if len(e.Names) > 0 {
+		db.Where("name in (?)", e.Names).Find(&entities)
 	} else if e.Name != "" && e.GroupID != 0 {
 		db.Where("name = ?", e.Name).Where("group_id = ?", e.GroupID).Find(&entities)
 	} else {
