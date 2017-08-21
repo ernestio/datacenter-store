@@ -19,7 +19,9 @@ func TestAWSDatacenter(t *testing.T) {
 	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
 		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})
-	setupPg()
+
+	createTestDB("test_aws")
+	setupPg("test_aws")
 	startHandler()
 
 	Convey("Scenario: getting a aws datacenter", t, func() {
@@ -44,7 +46,7 @@ func TestAWSDatacenter(t *testing.T) {
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
 			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
 			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 		})
 
 		Convey("Given the datacenter exists on the database and searching by name", func() {
@@ -67,7 +69,7 @@ func TestAWSDatacenter(t *testing.T) {
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
 			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
 			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 		})
 
 	})

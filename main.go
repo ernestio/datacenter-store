@@ -47,7 +47,7 @@ func startHandler() {
 
 func main() {
 	setupNats()
-	setupPg()
+	setupPg("projects")
 	startHandler()
 
 	runtime.Goexit()

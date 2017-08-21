@@ -5,7 +5,11 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"strconv"
+
+	"github.com/lib/pq"
 )
 
 func setupTestSuite() {
@@ -16,7 +20,7 @@ func createEntities(n int) {
 	i := 0
 	for i < n {
 		x := strconv.Itoa(i)
-		db.Create(&Entity{Name: "Test" + x, GroupID: uint(i)})
+		db.Create(&Entity{Name: "Test" + x})
 		i++
 	}
 }
@@ -25,7 +29,7 @@ func createVcloudEntities(n int) {
 	i := 0
 	for i < n {
 		x := strconv.Itoa(i)
-		db.Create(&Entity{Name: "TestVcloud" + x, Type: "vcloud", GroupID: uint(i)})
+		db.Create(&Entity{Name: "TestVcloud" + x, Type: "vcloud"})
 		i++
 	}
 }
@@ -34,7 +38,23 @@ func createAWSEntities(n int) {
 	i := 0
 	for i < n {
 		x := strconv.Itoa(i)
-		db.Create(&Entity{Name: "TestAWS" + x, Type: "aws", GroupID: uint(i)})
+		db.Create(&Entity{Name: "TestAWS" + x, Type: "aws"})
 		i++
 	}
+}
+
+func createTestDB(name string) error {
+	db, derr := sql.Open("postgres", "user=postgres sslmode=disable")
+	if derr != nil {
+		return derr
+	}
+
+	_, derr = db.Exec(fmt.Sprintf("DROP DATABASE IF EXISTS %s", pq.QuoteIdentifier(name)))
+	if derr != nil {
+		return derr
+	}
+
+	_, derr = db.Exec(fmt.Sprintf("CREATE DATABASE %s", pq.QuoteIdentifier(name)))
+
+	return derr
 }

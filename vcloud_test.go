@@ -19,7 +19,8 @@ func TestVcloudDatacenter(t *testing.T) {
 	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
 		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})
-	setupPg()
+	createTestDB("test_vcloud")
+	setupPg("test_vcloud")
 	startHandler()
 
 	Convey("Scenario: getting a vcloud datacenter", t, func() {
@@ -43,7 +44,7 @@ func TestVcloudDatacenter(t *testing.T) {
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
 			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
 			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 		})
 
 		Convey("Given the datacenter exists on the database and searching by name", func() {
@@ -65,7 +66,7 @@ func TestVcloudDatacenter(t *testing.T) {
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
 			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
 			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 		})
 
 		Convey("Given the datacenter exists on the database and searching with datacenter.find by name", func() {
@@ -89,7 +90,7 @@ func TestVcloudDatacenter(t *testing.T) {
 			So(output[0].ExternalNetwork, ShouldEqual, e.ExternalNetwork)
 			So(output[0].AccessKeyID, ShouldEqual, e.AccessKeyID)
 			So(output[0].SecretAccessKey, ShouldEqual, e.SecretAccessKey)
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 		})
 	})
 }

@@ -22,7 +22,8 @@ func TestGetHandler(t *testing.T) {
 	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
 		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})
-	setupPg()
+	createTestDB("test_projects")
+	setupPg("test_projects")
 	startHandler()
 
 	Convey("Scenario: getting a datacenter", t, func() {
@@ -30,7 +31,7 @@ func TestGetHandler(t *testing.T) {
 		Convey("Given the datacenter does not exist on the database", func() {
 			msg, err := n.Request("datacenter.get", []byte(`{"id":"32"}`), time.Second)
 			So(string(msg.Data), ShouldEqual, string(handler.NotFoundErrorMessage))
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 		})
 
 		Convey("Given the datacenter exists on the database", func() {
@@ -54,7 +55,7 @@ func TestGetHandler(t *testing.T) {
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
 			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
 			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 		})
 
 		Convey("Given the datacenter exists on the database and searching by name", func() {
@@ -77,7 +78,7 @@ func TestGetHandler(t *testing.T) {
 			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
 			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
 			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 		})
 	})
 
@@ -86,7 +87,7 @@ func TestGetHandler(t *testing.T) {
 		Convey("Given the datacenter does not exist on the database", func() {
 			msg, err := n.Request("datacenter.del", []byte(`{"id":32}`), time.Second)
 			So(string(msg.Data), ShouldEqual, string(handler.NotFoundErrorMessage))
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 		})
 
 		Convey("Given the datacenter exists on the database", func() {
@@ -97,7 +98,7 @@ func TestGetHandler(t *testing.T) {
 
 			msg, err := n.Request("datacenter.del", []byte(`{"id":`+id+`}`), time.Second)
 			So(string(msg.Data), ShouldEqual, string(handler.DeletedMessage))
-			So(err, ShouldEqual, nil)
+			So(err, ShouldBeNil)
 
 			deleted := Entity{}
 			db.First(&deleted, id)
@@ -114,7 +115,7 @@ func TestGetHandler(t *testing.T) {
 				output.LoadFromInput(msg.Data)
 				So(output.ID, ShouldNotEqual, nil)
 				So(output.Name, ShouldEqual, "fred")
-				So(err, ShouldEqual, nil)
+				So(err, ShouldBeNil)
 
 				stored := Entity{}
 				db.First(&stored, output.ID)
@@ -126,7 +127,7 @@ func TestGetHandler(t *testing.T) {
 			Convey("Then we should receive a not found message", func() {
 				msg, err := n.Request("datacenter.set", []byte(`{"id": 1000, "name":"fred"}`), time.Second)
 				So(string(msg.Data), ShouldEqual, string(handler.NotFoundErrorMessage))
-				So(err, ShouldEqual, nil)
+				So(err, ShouldBeNil)
 			})
 		})
 
@@ -142,7 +143,7 @@ func TestGetHandler(t *testing.T) {
 				output.LoadFromInput(msg.Data)
 				So(output.ID, ShouldNotEqual, nil)
 				So(output.Name, ShouldEqual, "fred")
-				So(err, ShouldEqual, nil)
+				So(err, ShouldBeNil)
 
 				stored := Entity{}
 				db.First(&stored, output.ID)
@@ -156,11 +157,11 @@ func TestGetHandler(t *testing.T) {
 		Convey("Given datacenters exist on the database", func() {
 			createEntities(20)
 			Convey("Then I should get a list of datacenters", func() {
-				msg, _ := n.Request("datacenter.find", []byte(`{"group_id":2}`), time.Second)
+				msg, _ := n.Request("datacenter.find", nil, time.Second)
 				list := []Entity{}
 				err = json.Unmarshal(msg.Data, &list)
 				So(err, ShouldBeNil)
-				So(len(list), ShouldEqual, 1)
+				So(len(list), ShouldEqual, 20)
 			})
 		})
 	})
@@ -188,21 +189,21 @@ func TestUpdateHandler(t *testing.T) {
 	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
 		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})
-	setupPg()
+	createTestDB("test_projects")
+	setupPg("test_projects")
 	startHandler()
 	Convey("Scenario: update datacenters", t, func() {
 		setupTestSuite()
 		Convey("Given datacenters exist on the database", func() {
 			createEntities(20)
 			Convey("Then I should get a list of datacenters", func() {
-				msg, _ := n.Request("datacenter.find", []byte(`{"group_id":2}`), time.Second)
+				msg, _ := n.Request("datacenter.find", nil, time.Second)
 				list := []Entity{}
 				err = json.Unmarshal(msg.Data, &list)
 				So(err, ShouldBeNil)
-				So(len(list), ShouldEqual, 1)
+				So(len(list), ShouldEqual, 20)
 				entity := list[0]
 				entity.Name = "supu"
-				entity.GroupID = 4
 				entity.AccessKeyID = "blah"
 				entity.SecretAccessKey = "blah"
 				body, _ := json.Marshal(entity)
@@ -213,7 +214,6 @@ func TestUpdateHandler(t *testing.T) {
 				So(err, ShouldBeNil)
 				So(len(list), ShouldEqual, 1)
 				So(list[0].Name, ShouldEqual, entity.Name)
-				So(list[0].GroupID, ShouldEqual, entity.GroupID)
 				So(list[0].AccessKeyID, ShouldNotEqual, entity.AccessKeyID)
 				So(list[0].SecretAccessKey, ShouldNotEqual, entity.SecretAccessKey)
 
@@ -230,7 +230,6 @@ func TestUpdateHandler(t *testing.T) {
 				encryptedSecretAccessKey := secret
 				entity = list[0]
 				entity.Name = "supu"
-				entity.GroupID = 3
 				entity.AccessKeyID = ""
 				entity.SecretAccessKey = ""
 				body, _ = json.Marshal(entity)
