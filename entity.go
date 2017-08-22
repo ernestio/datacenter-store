@@ -19,7 +19,6 @@ import (
 type Entity struct {
 	ID              uint     `json:"id" gorm:"primary_key"`
 	IDs             []string `json:"ids" gorm:"-"`
-	GroupID         uint     `json:"group_id" gorm:"unique_index:idx_per_group"`
 	Name            string   `json:"name" gorm:"unique_index:idx_per_group"`
 	Names           []string `json:"names" gorm:"-"`
 	Type            string   `json:"type" gorm:"unique_index:idx_per_group"`
@@ -43,7 +42,7 @@ type Entity struct {
 
 // TableName : set Entity's table name to be datacenters
 func (Entity) TableName() string {
-	return "datacenters"
+	return "projects"
 }
 
 // Find : based on the defined fields for the current entity
@@ -54,16 +53,10 @@ func (e *Entity) Find() []interface{} {
 		db.Where("id in (?)", e.IDs).Find(&entities)
 	} else if len(e.Names) > 0 {
 		db.Where("name in (?)", e.Names).Find(&entities)
-	} else if e.Name != "" && e.GroupID != 0 {
-		db.Where("name = ?", e.Name).Where("group_id = ?", e.GroupID).Find(&entities)
+	} else if e.Name != "" {
+		db.Where("name = ?", e.Name).Find(&entities)
 	} else {
-		if e.Name != "" {
-			db.Where("name = ?", e.Name).Find(&entities)
-		} else if e.GroupID != 0 {
-			db.Where("group_id = ?", e.GroupID).Find(&entities)
-		} else {
-			db.Find(&entities)
-		}
+		db.Find(&entities)
 	}
 
 	list := make([]interface{}, len(entities))
@@ -106,7 +99,6 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 	}
 
 	e.ID = stored.ID
-	e.GroupID = stored.GroupID
 	e.Name = stored.Name
 	e.Type = stored.Type
 	e.Username = stored.Username
@@ -147,7 +139,6 @@ func (e *Entity) Update(body []byte) error {
 	stored := Entity{}
 	db.First(&stored, e.ID)
 	stored.Name = e.Name
-	stored.GroupID = e.GroupID
 
 	if e.Username != "" {
 		stored.Username, _ = crypt(e.Username)

@@ -19,8 +19,8 @@ func setupNats() {
 	n = c.Nats()
 }
 
-func setupPg() {
-	db = c.Postgres("datacenters")
+func setupPg(dbname string) {
+	db = c.Postgres(dbname)
 	for true {
 		if err = db.AutoMigrate(&Entity{}).Error; err != nil {
 			log.Println("could not connect run migrations. retrying")
