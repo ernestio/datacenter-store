@@ -19,9 +19,9 @@ import (
 type Entity struct {
 	ID              uint     `json:"id" gorm:"primary_key"`
 	IDs             []string `json:"ids" gorm:"-"`
-	Name            string   `json:"name" gorm:"unique_index:idx_per_group"`
+	Name            string   `json:"name" gorm:"unique_index"`
 	Names           []string `json:"names" gorm:"-"`
-	Type            string   `json:"type" gorm:"unique_index:idx_per_group"`
+	Type            string   `json:"type"`
 	Region          string   `json:"region"`
 	Username        string   `json:"username"`
 	Password        string   `json:"password"`

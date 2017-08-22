@@ -16,6 +16,7 @@ import (
 
 func TestAWSDatacenter(t *testing.T) {
 	setupNats()
+	defer n.Close()
 	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
 		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})

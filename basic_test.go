@@ -19,6 +19,7 @@ import (
 
 func TestGetHandler(t *testing.T) {
 	setupNats()
+	defer n.Close()
 	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
 		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})
@@ -29,7 +30,7 @@ func TestGetHandler(t *testing.T) {
 	Convey("Scenario: getting a datacenter", t, func() {
 		setupTestSuite()
 		Convey("Given the datacenter does not exist on the database", func() {
-			msg, err := n.Request("datacenter.get", []byte(`{"id":"32"}`), time.Second)
+			msg, err := n.Request("datacenter.get", []byte(`{"id":32}`), time.Second)
 			So(string(msg.Data), ShouldEqual, string(handler.NotFoundErrorMessage))
 			So(err, ShouldBeNil)
 		})
@@ -110,22 +111,22 @@ func TestGetHandler(t *testing.T) {
 		setupTestSuite()
 		Convey("Given we don't provide any id as part of the body", func() {
 			Convey("Then it should return the created record and it should be stored on DB", func() {
-				msg, err := n.Request("datacenter.set", []byte(`{"name":"fred","aws_access_token_id":"foo","aws_secret_access_key":"bar"}`), time.Second)
+				msg, err := n.Request("datacenter.set", []byte(`{"name":"test-101","aws_access_token_id":"foo","aws_secret_access_key":"bar", "type": "fake"}`), time.Second)
 				output := Entity{}
 				output.LoadFromInput(msg.Data)
 				So(output.ID, ShouldNotEqual, nil)
-				So(output.Name, ShouldEqual, "fred")
+				So(output.Name, ShouldEqual, "test-101")
 				So(err, ShouldBeNil)
 
 				stored := Entity{}
 				db.First(&stored, output.ID)
-				So(stored.Name, ShouldEqual, "fred")
+				So(stored.Name, ShouldEqual, "test-101")
 			})
 		})
 
 		Convey("Given we provide an unexisting id", func() {
 			Convey("Then we should receive a not found message", func() {
-				msg, err := n.Request("datacenter.set", []byte(`{"id": 1000, "name":"fred"}`), time.Second)
+				msg, err := n.Request("datacenter.set", []byte(`{"id": 1000, "name":"test-100", "type": "fake"}`), time.Second)
 				So(string(msg.Data), ShouldEqual, string(handler.NotFoundErrorMessage))
 				So(err, ShouldBeNil)
 			})
@@ -138,16 +139,16 @@ func TestGetHandler(t *testing.T) {
 			db.First(&e)
 			id := fmt.Sprint(e.ID)
 			Convey("Then we should receive an updated entity", func() {
-				msg, err := n.Request("datacenter.set", []byte(`{"id": `+id+`, "name":"fred"}`), time.Second)
+				msg, err := n.Request("datacenter.set", []byte(`{"id": `+id+`, "name":"test-100", "type": "fake"}`), time.Second)
 				output := Entity{}
 				output.LoadFromInput(msg.Data)
 				So(output.ID, ShouldNotEqual, nil)
-				So(output.Name, ShouldEqual, "fred")
+				So(output.Name, ShouldEqual, "test-100")
 				So(err, ShouldBeNil)
 
 				stored := Entity{}
 				db.First(&stored, output.ID)
-				So(stored.Name, ShouldEqual, "fred")
+				So(stored.Name, ShouldEqual, "test-100")
 			})
 		})
 	})
@@ -157,7 +158,7 @@ func TestGetHandler(t *testing.T) {
 		Convey("Given datacenters exist on the database", func() {
 			createEntities(20)
 			Convey("Then I should get a list of datacenters", func() {
-				msg, _ := n.Request("datacenter.find", nil, time.Second)
+				msg, _ := n.Request("datacenter.find", []byte(`{}`), time.Second)
 				list := []Entity{}
 				err = json.Unmarshal(msg.Data, &list)
 				So(err, ShouldBeNil)
@@ -186,6 +187,7 @@ func TestGetHandler(t *testing.T) {
 
 func TestUpdateHandler(t *testing.T) {
 	setupNats()
+	defer n.Close()
 	_, _ = n.Subscribe("config.get.postgres", func(msg *nats.Msg) {
 		_ = n.Publish(msg.Reply, []byte(`{"names":["users","datacenters","datacenters","services"],"password":"","url":"postgres://postgres@127.0.0.1","user":""}`))
 	})
@@ -197,7 +199,7 @@ func TestUpdateHandler(t *testing.T) {
 		Convey("Given datacenters exist on the database", func() {
 			createEntities(20)
 			Convey("Then I should get a list of datacenters", func() {
-				msg, _ := n.Request("datacenter.find", nil, time.Second)
+				msg, _ := n.Request("datacenter.find", []byte(`{}`), time.Second)
 				list := []Entity{}
 				err = json.Unmarshal(msg.Data, &list)
 				So(err, ShouldBeNil)
