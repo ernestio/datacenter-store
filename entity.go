@@ -6,6 +6,7 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"time"
@@ -17,27 +18,15 @@ import (
 
 // Entity : the database mapped entity
 type Entity struct {
-	ID              uint     `json:"id" gorm:"primary_key"`
-	IDs             []string `json:"ids" gorm:"-"`
-	Name            string   `json:"name" gorm:"unique_index"`
-	Names           []string `json:"names" gorm:"-"`
-	Type            string   `json:"type"`
-	Region          string   `json:"region"`
-	Username        string   `json:"username"`
-	Password        string   `json:"password"`
-	VCloudURL       string   `json:"vcloud_url"`
-	VseURL          string   `json:"vse_url"`
-	ExternalNetwork string   `json:"external_network"`
-	AccessKeyID     string   `json:"aws_access_key_id"`
-	SecretAccessKey string   `json:"aws_secret_access_key"`
-	SubscriptionID  string   `json:"azure_subscription_id"`
-	ClientID        string   `json:"azure_client_id"`
-	ClientSecret    string   `json:"azure_client_secret"`
-	TenantID        string   `json:"azure_tenant_id"`
-	Environment     string   `json:"azure_environment"`
-	CreatedAt       time.Time
-	UpdatedAt       time.Time
-	DeletedAt       *time.Time `json:"-" sql:"index"`
+	ID          uint     `json:"id" gorm:"primary_key"`
+	IDs         []string `json:"ids,omitempty" gorm:"-"`
+	Name        string   `json:"name" gorm:"unique_index"`
+	Names       []string `json:"names,omitempty" gorm:"-"`
+	Type        string   `json:"type"`
+	Credentials Map      `json:"credentials" gorm:"type: jsonb not null default '{}'::jsonb"`
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+	DeletedAt   *time.Time `json:"-" sql:"index"`
 }
 
 // TableName : set Entity's table name to be datacenters
@@ -101,19 +90,7 @@ func (e *Entity) LoadFromInput(msg []byte) bool {
 	e.ID = stored.ID
 	e.Name = stored.Name
 	e.Type = stored.Type
-	e.Username = stored.Username
-	e.Password = stored.Password
-	e.ExternalNetwork = stored.ExternalNetwork
-	e.AccessKeyID = stored.AccessKeyID
-	e.SecretAccessKey = stored.SecretAccessKey
-	e.Region = stored.Region
-	e.VCloudURL = stored.VCloudURL
-	e.VseURL = stored.VseURL
-	e.SubscriptionID = stored.SubscriptionID
-	e.ClientID = stored.ClientID
-	e.ClientSecret = stored.ClientSecret
-	e.TenantID = stored.TenantID
-	e.Environment = stored.Environment
+	e.Credentials = stored.Credentials
 	e.CreatedAt = stored.CreatedAt
 	e.UpdatedAt = stored.UpdatedAt
 
@@ -140,33 +117,12 @@ func (e *Entity) Update(body []byte) error {
 	db.First(&stored, e.ID)
 	stored.Name = e.Name
 
-	if e.Username != "" {
-		stored.Username, _ = crypt(e.Username)
+	ec, err := encryptCredentials(e.Credentials)
+	if err != nil {
+		return err
 	}
-	if e.Password != "" {
-		stored.Password, _ = crypt(e.Password)
-	}
-	if e.AccessKeyID != "" {
-		stored.AccessKeyID, _ = crypt(e.AccessKeyID)
-	}
-	if e.SecretAccessKey != "" {
-		stored.SecretAccessKey, _ = crypt(e.SecretAccessKey)
-	}
-	if e.SubscriptionID != "" {
-		stored.SubscriptionID, _ = crypt(e.SubscriptionID)
-	}
-	if e.ClientID != "" {
-		stored.ClientID, _ = crypt(e.ClientID)
-	}
-	if e.ClientSecret != "" {
-		stored.ClientSecret, _ = crypt(e.ClientSecret)
-	}
-	if e.TenantID != "" {
-		stored.TenantID, _ = crypt(e.TenantID)
-	}
-	if e.Environment != "" {
-		stored.Environment, _ = crypt(e.Environment)
-	}
+
+	e.Credentials = ec
 
 	db.Save(&stored)
 	e = &stored
@@ -197,54 +153,32 @@ func crypt(s string) (string, error) {
 
 // Save : Persists current entity on database
 func (e *Entity) Save() error {
-	var err error
-
-	e.Username, err = crypt(e.Username)
+	ec, err := encryptCredentials(e.Credentials)
 	if err != nil {
 		return err
 	}
 
-	e.Password, err = crypt(e.Password)
-	if err != nil {
-		return err
-	}
-
-	e.AccessKeyID, err = crypt(e.AccessKeyID)
-	if err != nil {
-		return err
-	}
-
-	e.SecretAccessKey, err = crypt(e.SecretAccessKey)
-	if err != nil {
-		return err
-	}
-
-	e.SubscriptionID, err = crypt(e.SubscriptionID)
-	if err != nil {
-		return err
-	}
-
-	e.ClientID, err = crypt(e.ClientID)
-	if err != nil {
-		return err
-	}
-
-	e.ClientSecret, err = crypt(e.ClientSecret)
-	if err != nil {
-		return err
-	}
-
-	e.TenantID, err = crypt(e.TenantID)
-	if err != nil {
-		return err
-	}
-
-	e.Environment, err = crypt(e.Environment)
-	if err != nil {
-		return err
-	}
-
+	e.Credentials = ec
+	fmt.Println(e.Credentials)
 	db.Save(&e)
 
 	return nil
+}
+
+func encryptCredentials(c Map) (Map, error) {
+	for k, v := range c {
+		xc, ok := v.(string)
+		if !ok {
+			continue
+		}
+
+		x, err := crypt(xc)
+		if err != nil {
+			return c, err
+		}
+
+		c[k] = x
+	}
+
+	return c, nil
 }

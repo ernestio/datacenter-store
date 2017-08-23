@@ -24,8 +24,8 @@ func TestVcloudDatacenter(t *testing.T) {
 	setupPg("test_vcloud")
 	startHandler()
 
-	Convey("Scenario: getting a vcloud datacenter", t, func() {
-		Convey("Given the datacenter exists on the database", func() {
+	Convey("Scenario: getting a vcloud project", t, func() {
+		Convey("Given the project exists on the database", func() {
 			createVcloudEntities(1)
 			e := Entity{}
 			db.Last(&e)
@@ -37,18 +37,14 @@ func TestVcloudDatacenter(t *testing.T) {
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)
 			So(output.Type, ShouldEqual, e.Type)
-			So(output.Region, ShouldEqual, e.Region)
-			So(output.Username, ShouldEqual, e.Username)
-			So(output.Password, ShouldEqual, e.Password)
-			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
-			So(output.VseURL, ShouldEqual, e.VseURL)
-			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
-			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
+			So(output.Credentials["vcloud_url"], ShouldEqual, "http://vcloud.com")
+			So(output.Credentials["external_network"], ShouldEqual, "ext-100")
+			So(output.Credentials["username"], ShouldEqual, "test")
+			So(output.Credentials["password"], ShouldEqual, "test")
 			So(err, ShouldBeNil)
 		})
 
-		Convey("Given the datacenter exists on the database and searching by name", func() {
+		Convey("Given the project exists on the database and searching by name", func() {
 			e := Entity{}
 			db.Last(&e)
 
@@ -59,18 +55,14 @@ func TestVcloudDatacenter(t *testing.T) {
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)
 			So(output.Type, ShouldEqual, e.Type)
-			So(output.Region, ShouldEqual, e.Region)
-			So(output.Username, ShouldEqual, e.Username)
-			So(output.Password, ShouldEqual, e.Password)
-			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
-			So(output.VseURL, ShouldEqual, e.VseURL)
-			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
-			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
+			So(output.Credentials["vcloud_url"], ShouldEqual, "http://vcloud.com")
+			So(output.Credentials["external_network"], ShouldEqual, "ext-100")
+			So(output.Credentials["username"], ShouldEqual, "test")
+			So(output.Credentials["password"], ShouldEqual, "test")
 			So(err, ShouldBeNil)
 		})
 
-		Convey("Given the datacenter exists on the database and searching with datacenter.find by name", func() {
+		Convey("Given the project exists on the database and searching with project.find by name", func() {
 			e := Entity{}
 			db.Last(&e)
 
@@ -83,14 +75,10 @@ func TestVcloudDatacenter(t *testing.T) {
 			So(output[0].ID, ShouldEqual, e.ID)
 			So(output[0].Name, ShouldEqual, e.Name)
 			So(output[0].Type, ShouldEqual, e.Type)
-			So(output[0].Region, ShouldEqual, e.Region)
-			So(output[0].Username, ShouldEqual, e.Username)
-			So(output[0].Password, ShouldEqual, e.Password)
-			So(output[0].VCloudURL, ShouldEqual, e.VCloudURL)
-			So(output[0].VseURL, ShouldEqual, e.VseURL)
-			So(output[0].ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output[0].AccessKeyID, ShouldEqual, e.AccessKeyID)
-			So(output[0].SecretAccessKey, ShouldEqual, e.SecretAccessKey)
+			So(output[0].Credentials["vcloud_url"], ShouldEqual, "http://vcloud.com")
+			So(output[0].Credentials["external_network"], ShouldEqual, "ext-100")
+			So(output[0].Credentials["username"], ShouldEqual, "test")
+			So(output[0].Credentials["password"], ShouldEqual, "test")
 			So(err, ShouldBeNil)
 		})
 	})
