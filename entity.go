@@ -6,7 +6,6 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
 	"log"
 	"os"
 	"time"
@@ -122,7 +121,7 @@ func (e *Entity) Update(body []byte) error {
 		return err
 	}
 
-	e.Credentials = ec
+	stored.Credentials = ec
 
 	db.Save(&stored)
 	e = &stored
@@ -159,7 +158,6 @@ func (e *Entity) Save() error {
 	}
 
 	e.Credentials = ec
-	fmt.Println(e.Credentials)
 	db.Save(&e)
 
 	return nil
