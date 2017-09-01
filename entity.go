@@ -111,6 +111,8 @@ func (e *Entity) LoadFromInputOrFail(msg *nats.Msg, h *natsdb.Handler) bool {
 
 // Update : It will update the current entity with the input []byte
 func (e *Entity) Update(body []byte) error {
+	e.Credentials = make(Map)
+
 	e.MapInput(body)
 	stored := Entity{}
 	db.First(&stored, e.ID)
@@ -121,7 +123,9 @@ func (e *Entity) Update(body []byte) error {
 		return err
 	}
 
-	stored.Credentials = ec
+	for k, v := range ec {
+		stored.Credentials[k] = v
+	}
 
 	db.Save(&stored)
 	e = &stored
