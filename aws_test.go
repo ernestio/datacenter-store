@@ -25,8 +25,8 @@ func TestAWSDatacenter(t *testing.T) {
 	setupPg("test_aws")
 	startHandler()
 
-	Convey("Scenario: getting a aws datacenter", t, func() {
-		Convey("Given the datacenter exists on the database", func() {
+	Convey("Scenario: getting a aws project", t, func() {
+		Convey("Given the project exists on the database", func() {
 			createAWSEntities(1)
 			e := Entity{}
 			db.Last(&e)
@@ -39,18 +39,13 @@ func TestAWSDatacenter(t *testing.T) {
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)
 			So(output.Type, ShouldEqual, e.Type)
-			So(output.Region, ShouldEqual, e.Region)
-			So(output.Username, ShouldEqual, e.Username)
-			So(output.Password, ShouldEqual, e.Password)
-			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
-			So(output.VseURL, ShouldEqual, e.VseURL)
-			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
-			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
+			So(output.Credentials["region"], ShouldEqual, "eu-west-1")
+			So(output.Credentials["access_key_id"], ShouldEqual, "test-id")
+			So(output.Credentials["secret_access_key"], ShouldEqual, "test-key")
 			So(err, ShouldBeNil)
 		})
 
-		Convey("Given the datacenter exists on the database and searching by name", func() {
+		Convey("Given the project exists on the database and searching by name", func() {
 			e := Entity{}
 			db.Last(&e)
 
@@ -62,14 +57,9 @@ func TestAWSDatacenter(t *testing.T) {
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)
 			So(output.Type, ShouldEqual, e.Type)
-			So(output.Region, ShouldEqual, e.Region)
-			So(output.Username, ShouldEqual, e.Username)
-			So(output.Password, ShouldEqual, e.Password)
-			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
-			So(output.VseURL, ShouldEqual, e.VseURL)
-			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
-			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
+			So(output.Credentials["region"], ShouldEqual, "eu-west-1")
+			So(output.Credentials["access_key_id"], ShouldEqual, "test-id")
+			So(output.Credentials["secret_access_key"], ShouldEqual, "test-key")
 			So(err, ShouldBeNil)
 		})
 

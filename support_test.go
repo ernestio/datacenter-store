@@ -20,7 +20,7 @@ func createEntities(n int) {
 	i := 0
 	for i < n {
 		x := strconv.Itoa(i)
-		db.Create(&Entity{Name: "Test" + x})
+		db.Create(&Entity{Name: "Test" + x, Credentials: Map{"access_key_id": "test-id", "secret_access_key": "test-key", "region": "eu-west-1"}})
 		i++
 	}
 }
@@ -29,7 +29,7 @@ func createVcloudEntities(n int) {
 	i := 0
 	for i < n {
 		x := strconv.Itoa(i)
-		db.Create(&Entity{Name: "TestVcloud" + x, Type: "vcloud"})
+		db.Create(&Entity{Name: "TestVcloud" + x, Type: "vcloud", Credentials: Map{"vcloud_url": "http://vcloud.com", "external_network": "ext-100", "username": "test", "password": "test"}})
 		i++
 	}
 }
@@ -38,7 +38,7 @@ func createAWSEntities(n int) {
 	i := 0
 	for i < n {
 		x := strconv.Itoa(i)
-		db.Create(&Entity{Name: "TestAWS" + x, Type: "aws"})
+		db.Create(&Entity{Name: "TestAWS" + x, Type: "aws", Credentials: Map{"access_key_id": "test-id", "secret_access_key": "test-key", "region": "eu-west-1"}})
 		i++
 	}
 }

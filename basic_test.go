@@ -27,15 +27,15 @@ func TestGetHandler(t *testing.T) {
 	setupPg("test_projects")
 	startHandler()
 
-	Convey("Scenario: getting a datacenter", t, func() {
+	Convey("Scenario: getting a project", t, func() {
 		setupTestSuite()
-		Convey("Given the datacenter does not exist on the database", func() {
+		Convey("Given the project does not exist on the database", func() {
 			msg, err := n.Request("datacenter.get", []byte(`{"id":32}`), time.Second)
 			So(string(msg.Data), ShouldEqual, string(handler.NotFoundErrorMessage))
 			So(err, ShouldBeNil)
 		})
 
-		Convey("Given the datacenter exists on the database", func() {
+		Convey("Given the project exists on the database", func() {
 			createEntities(1)
 			e := Entity{}
 			db.First(&e)
@@ -48,18 +48,10 @@ func TestGetHandler(t *testing.T) {
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)
 			So(output.Type, ShouldEqual, e.Type)
-			So(output.Region, ShouldEqual, e.Region)
-			So(output.Username, ShouldEqual, e.Username)
-			So(output.Password, ShouldEqual, e.Password)
-			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
-			So(output.VseURL, ShouldEqual, e.VseURL)
-			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
-			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
 			So(err, ShouldBeNil)
 		})
 
-		Convey("Given the datacenter exists on the database and searching by name", func() {
+		Convey("Given the project exists on the database and searching by name", func() {
 			createEntities(1)
 			e := Entity{}
 			db.First(&e)
@@ -71,27 +63,19 @@ func TestGetHandler(t *testing.T) {
 			So(output.ID, ShouldEqual, e.ID)
 			So(output.Name, ShouldEqual, e.Name)
 			So(output.Type, ShouldEqual, e.Type)
-			So(output.Region, ShouldEqual, e.Region)
-			So(output.Username, ShouldEqual, e.Username)
-			So(output.Password, ShouldEqual, e.Password)
-			So(output.VCloudURL, ShouldEqual, e.VCloudURL)
-			So(output.VseURL, ShouldEqual, e.VseURL)
-			So(output.ExternalNetwork, ShouldEqual, e.ExternalNetwork)
-			So(output.AccessKeyID, ShouldEqual, e.AccessKeyID)
-			So(output.SecretAccessKey, ShouldEqual, e.SecretAccessKey)
 			So(err, ShouldBeNil)
 		})
 	})
 
-	Convey("Scenario: deleting a datacenter", t, func() {
+	Convey("Scenario: deleting a project", t, func() {
 		setupTestSuite()
-		Convey("Given the datacenter does not exist on the database", func() {
+		Convey("Given the project does not exist on the database", func() {
 			msg, err := n.Request("datacenter.del", []byte(`{"id":32}`), time.Second)
 			So(string(msg.Data), ShouldEqual, string(handler.NotFoundErrorMessage))
 			So(err, ShouldBeNil)
 		})
 
-		Convey("Given the datacenter exists on the database", func() {
+		Convey("Given the project exists on the database", func() {
 			createEntities(1)
 			last := Entity{}
 			db.First(&last)
@@ -107,7 +91,7 @@ func TestGetHandler(t *testing.T) {
 		})
 	})
 
-	Convey("Scenario: datacenter set", t, func() {
+	Convey("Scenario: project set", t, func() {
 		setupTestSuite()
 		Convey("Given we don't provide any id as part of the body", func() {
 			Convey("Then it should return the created record and it should be stored on DB", func() {
@@ -153,11 +137,11 @@ func TestGetHandler(t *testing.T) {
 		})
 	})
 
-	Convey("Scenario: find datacenters", t, func() {
+	Convey("Scenario: find projects", t, func() {
 		setupTestSuite()
-		Convey("Given datacenters exist on the database", func() {
+		Convey("Given projects exist on the database", func() {
 			createEntities(20)
-			Convey("Then I should get a list of datacenters", func() {
+			Convey("Then I should get a list of projects", func() {
 				msg, _ := n.Request("datacenter.find", []byte(`{}`), time.Second)
 				list := []Entity{}
 				err = json.Unmarshal(msg.Data, &list)
@@ -167,11 +151,11 @@ func TestGetHandler(t *testing.T) {
 		})
 	})
 
-	Convey("Scenario: find datacenters by multiple ids", t, func() {
+	Convey("Scenario: find projects by multiple ids", t, func() {
 		setupTestSuite()
-		Convey("Given datacenters exist on the database", func() {
+		Convey("Given projects exist on the database", func() {
 			createEntities(20)
-			Convey("Then I should get a list of datacenters", func() {
+			Convey("Then I should get a list of projects", func() {
 				msg, _ := n.Request("datacenter.find", []byte(`{}`), time.Second)
 				list := []Entity{}
 				err = json.Unmarshal(msg.Data, &list)
@@ -194,58 +178,39 @@ func TestUpdateHandler(t *testing.T) {
 	createTestDB("test_projects")
 	setupPg("test_projects")
 	startHandler()
-	Convey("Scenario: update datacenters", t, func() {
+	Convey("Scenario: update projects", t, func() {
 		setupTestSuite()
-		Convey("Given datacenters exist on the database", func() {
+		Convey("Given projects exist on the database", func() {
 			createEntities(20)
-			Convey("Then I should get a list of datacenters", func() {
-				msg, _ := n.Request("datacenter.find", []byte(`{}`), time.Second)
-				list := []Entity{}
-				err = json.Unmarshal(msg.Data, &list)
-				So(err, ShouldBeNil)
-				So(len(list), ShouldEqual, 20)
-				entity := list[0]
-				entity.Name = "supu"
-				entity.AccessKeyID = "blah"
-				entity.SecretAccessKey = "blah"
-				body, _ := json.Marshal(entity)
-				msg, _ = n.Request("datacenter.set", body, time.Second)
+			Convey("Then I should be able to create a project", func() {
+				var list []Entity
+				entity := Entity{
+					Name: "supu",
+					Credentials: Map{
+						"access_key_id":     "blah",
+						"secret_access_key": "blah",
+					},
+				}
 
-				msg, _ = n.Request("datacenter.find", []byte(`{"name":"`+entity.Name+`"}`), time.Second)
+				body, _ := json.Marshal(entity)
+				_, _ = n.Request("datacenter.set", body, time.Second)
+
+				msg, _ := n.Request("datacenter.find", []byte(`{"name":"`+entity.Name+`"}`), time.Second)
 				err = json.Unmarshal(msg.Data, &list)
 				So(err, ShouldBeNil)
 				So(len(list), ShouldEqual, 1)
 				So(list[0].Name, ShouldEqual, entity.Name)
-				So(list[0].AccessKeyID, ShouldNotEqual, entity.AccessKeyID)
-				So(list[0].SecretAccessKey, ShouldNotEqual, entity.SecretAccessKey)
+				So(list[0].Credentials["access_key_id"], ShouldNotEqual, entity.Credentials["access_key_id"])
+				So(list[0].Credentials["secret_access_key"], ShouldNotEqual, entity.Credentials["secret_access_key"])
 
 				crypto := aes.New()
 				key := os.Getenv("ERNEST_CRYPTO_KEY")
-				token, err := crypto.Decrypt(list[0].AccessKeyID, key)
+				token, err := crypto.Decrypt(list[0].Credentials["access_key_id"].(string), key)
 				So(err, ShouldBeNil)
-				So(token, ShouldEqual, entity.AccessKeyID)
-				secret, err := crypto.Decrypt(list[0].SecretAccessKey, key)
+				So(token, ShouldEqual, entity.Credentials["access_key_id"])
+				secret, err := crypto.Decrypt(list[0].Credentials["secret_access_key"].(string), key)
 				So(err, ShouldBeNil)
-				So(secret, ShouldEqual, entity.SecretAccessKey)
-
-				encryptedAccessKeyID := token
-				encryptedSecretAccessKey := secret
-				entity = list[0]
-				entity.Name = "supu"
-				entity.AccessKeyID = ""
-				entity.SecretAccessKey = ""
-				body, _ = json.Marshal(entity)
-				msg, _ = n.Request("datacenter.set", body, time.Second)
-				msg, _ = n.Request("datacenter.find", []byte(`{"name":"`+entity.Name+`"}`), time.Second)
-				err = json.Unmarshal(msg.Data, &list)
-				So(err, ShouldBeNil)
-
-				token, err = crypto.Decrypt(list[0].AccessKeyID, key)
-				So(err, ShouldBeNil)
-				So(encryptedAccessKeyID, ShouldEqual, encryptedAccessKeyID)
-				secret, err = crypto.Decrypt(list[0].SecretAccessKey, key)
-				So(err, ShouldBeNil)
-				So(encryptedSecretAccessKey, ShouldEqual, encryptedSecretAccessKey)
+				So(secret, ShouldEqual, entity.Credentials["secret_access_key"])
 			})
 		})
 	})
