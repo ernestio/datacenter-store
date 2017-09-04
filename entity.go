@@ -169,6 +169,10 @@ func (e *Entity) Save() error {
 
 func encryptCredentials(c Map) (Map, error) {
 	for k, v := range c {
+		if k == "region" || k == "external_network" || k == "username" || k == "vcloud_url" {
+			continue
+		}
+
 		xc, ok := v.(string)
 		if !ok {
 			continue
