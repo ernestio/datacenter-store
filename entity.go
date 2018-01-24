@@ -18,9 +18,9 @@ import (
 // Entity : the database mapped entity
 type Entity struct {
 	ID          uint     `json:"id" gorm:"primary_key"`
-	IDs         []string `json:"ids,omitempty" gorm:"-"`
+	IDs         []string `json:"ids,omitempty" sql:"-"`
 	Name        string   `json:"name" gorm:"unique_index"`
-	Names       []string `json:"names,omitempty" gorm:"-"`
+	Names       []string `json:"names,omitempty" sql:"-"`
 	Type        string   `json:"type"`
 	Credentials Map      `json:"credentials" gorm:"type: jsonb not null default '{}'::jsonb"`
 	CreatedAt   time.Time
