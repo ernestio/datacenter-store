@@ -9,7 +9,7 @@ import (
 	"runtime"
 
 	"github.com/jinzhu/gorm"
-	"github.com/nats-io/nats"
+	"github.com/nats-io/go-nats"
 	"github.com/r3labs/natsdb"
 
 	_ "github.com/jinzhu/gorm/dialects/postgres"
